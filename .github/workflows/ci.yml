@@ -16,3 +16,14 @@ jobs:
           docker stop my-app || true
           docker rm my-app || true
           docker run -d --name my-app -p 8080:80 my-app
+      - name:  Send Telegram notification 
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then 
+          MESSAGE="✅ Деплой успешен! Контейнер my-app запущен на порту 8080."
+        else
+          MESSAGE="❌ Деплой упал! Проверь логи Github Actions."
+        fi
+        curl -s -X POST https://api.telegram.org/bot${{ sectets.TELEGRAM_TOKEN }}/sendMessage \
+          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+          -d text="$MESSAGE"
